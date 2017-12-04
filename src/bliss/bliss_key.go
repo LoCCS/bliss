@@ -81,3 +81,30 @@ func (privateKey *BlissPrivateKey) String() string {
 func (publicKey *BlissPublicKey) String() string {
 	return fmt.Sprintf("{a:%s}", publicKey.a.String())
 }
+
+func (publicKey *BlissPublicKey) Encode() []byte {
+	n := publicKey.Param().N
+	data := publicKey.a.GetData()
+	ret := make([]byte, n*2+1)
+	ret[0] = byte(publicKey.Param().Version)
+	for i := 0; i < int(n); i++ {
+		ret[i*2+1] = byte(uint16(data[i]) >> 8)
+		ret[i*2+2] = byte(uint16(data[i]) & 0xff)
+	}
+	return ret[:]
+}
+
+func DecodeBlissPublicKey(data []byte) (*BlissPublicKey, error) {
+	a, err := poly.New(int(data[0]))
+	if err != nil {
+		return nil, fmt.Errorf("Error in generating new polyarray: %s", err.Error())
+	}
+	ret := &BlissPublicKey{a}
+	n := a.Param().N
+	retdata := make([]int32, n)
+	for i := 0; i < int(n); i++ {
+		retdata[i] = (int32(data[i*2+1]) << 8) | (int32(data[i*2+2]))
+	}
+	a.SetData(retdata)
+	return ret, nil
+}
