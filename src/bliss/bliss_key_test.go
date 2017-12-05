@@ -68,7 +68,7 @@ func TestGeneratePrivateKey(t *testing.T) {
 	}
 }
 
-func TestEncodeDecode(t *testing.T) {
+func TestKeyEncodeDecode(t *testing.T) {
 	for i := 0; i <= 4; i++ {
 		seed := make([]uint8, sampler.SHA_512_DIGEST_LENGTH)
 		for i := 0; i < len(seed); i++ {
