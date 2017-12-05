@@ -3,6 +3,7 @@ package bliss
 import (
 	"fmt"
 	"io/ioutil"
+	"reflect"
 	"sampler"
 	"strconv"
 	"strings"
@@ -63,6 +64,34 @@ func TestGeneratePrivateKey(t *testing.T) {
 			if int32(tmp) != s3[j] {
 				t.Errorf("Wrong a at %d: expect %d, got %d", j, tmp, s3[j])
 			}
+		}
+	}
+}
+
+func TestEncodeDecode(t *testing.T) {
+	for i := 0; i <= 4; i++ {
+		seed := make([]uint8, sampler.SHA_512_DIGEST_LENGTH)
+		for i := 0; i < len(seed); i++ {
+			seed[i] = uint8(i % 8)
+		}
+		entropy, err := sampler.NewEntropy(seed)
+		if err != nil {
+			t.Errorf("Error in initializing entropy: %s", err.Error())
+		}
+
+		key, err := GeneratePrivateKey(i, entropy)
+		if err != nil {
+			t.Errorf("Error in generating private key: %s", err.Error())
+		}
+
+		pub := key.PublicKey()
+		enc := pub.Encode()
+		tmp, err := DecodeBlissPublicKey(enc)
+		if err != nil {
+			t.Errorf("Error in decoding public key: %s", err.Error())
+		}
+		if !reflect.DeepEqual(pub, tmp) {
+			t.Errorf("Different public key decoded for version %d!", i)
 		}
 	}
 }
