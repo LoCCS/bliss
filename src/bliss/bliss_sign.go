@@ -295,8 +295,8 @@ func DecodeBlissSignature(data []byte) (*BlissSignature, error) {
 	}
 
 	cdata := make([]uint32, kappa)
-	z1data := make([]int32, n)
-	z2data := make([]int32, n)
+	z1data := z1.GetData()
+	z2data := z2.GetData()
 	ret := &BlissSignature{z1, z2, cdata[:]}
 
 	z1src := data[1 : 1+z1len]
@@ -329,8 +329,6 @@ func DecodeBlissSignature(data []byte) (*BlissSignature, error) {
 	for i := 0; i < int(kappa); i++ {
 		cdata[i] = (uint32(csrc[i*2]) << 8) | (uint32(csrc[i*2+1]))
 	}
-	z1.SetData(z1data)
-	z2.SetData(z2data)
 	return ret, nil
 }
 

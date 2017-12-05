@@ -84,14 +84,28 @@ func TestKeyEncodeDecode(t *testing.T) {
 			t.Errorf("Error in generating private key: %s", err.Error())
 		}
 
-		pub := key.PublicKey()
-		enc := pub.Encode()
-		tmp, err := DecodeBlissPublicKey(enc)
-		if err != nil {
-			t.Errorf("Error in decoding public key: %s", err.Error())
+		{
+			pub := key.PublicKey()
+			enc := pub.Encode()
+			tmp, err := DecodeBlissPublicKey(enc)
+			if err != nil {
+				t.Errorf("Error in decoding public key: %s", err.Error())
+			}
+			if !reflect.DeepEqual(pub, tmp) {
+				t.Errorf("Different public key decoded for version %d!", i)
+			}
 		}
-		if !reflect.DeepEqual(pub, tmp) {
-			t.Errorf("Different public key decoded for version %d!", i)
+
+		{
+			enc := key.Encode()
+			tmp, err := DecodeBlissPrivateKey(enc)
+			if err != nil {
+				t.Errorf("Error in decoding private key: %s", err.Error())
+			}
+			if !reflect.DeepEqual(key, tmp) {
+				t.Errorf("Different private key decoded for version %d!\nOriginal:\n%s\nDecoded:\n%s\n",
+					i, key.String(), tmp.String())
+			}
 		}
 	}
 }
