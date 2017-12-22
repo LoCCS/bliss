@@ -2,12 +2,12 @@ package bliss
 
 import (
 	"fmt"
-	"io/ioutil"
 	"github.com/LoCCS/bliss/sampler"
+	"io/ioutil"
+	"reflect"
 	"strconv"
 	"strings"
 	"testing"
-	"reflect"
 )
 
 func TestGeneratePrivateKey(t *testing.T) {

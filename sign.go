@@ -2,11 +2,11 @@ package bliss
 
 import (
 	"fmt"
-	"golang.org/x/crypto/sha3"
+	"github.com/LoCCS/bliss/huffman"
+	"github.com/LoCCS/bliss/params"
 	"github.com/LoCCS/bliss/poly"
 	"github.com/LoCCS/bliss/sampler"
-	"github.com/LoCCS/bliss/params"
-	"github.com/LoCCS/bliss/huffman"
+	"golang.org/x/crypto/sha3"
 )
 
 type Signature struct {
@@ -166,6 +166,78 @@ restart:
 		goto restart
 	}
 	y2 = z2.Mul2d()
+	if y2.MaxNorm() > int32(Binf) {
+		goto restart
+	}
+	if z1.Norm2()+y2.Norm2() > int32(Bl2) {
+		goto restart
+	}
+	return &Signature{z1, z2, indices}, nil
+}
+
+func (key *PrivateKey) SignAgainstSideChannel(msg []byte, entropy *sampler.Entropy) (*Signature, error) {
+	kappa := key.Param().Kappa
+	version := key.Param().Version
+	Binf := key.Param().Binf
+	Bl2 := key.Param().Bl2
+	M := key.Param().M
+	sampler, err := sampler.New(version, entropy)
+	if err != nil {
+		return nil, err
+	}
+	hash := sha3.Sum512(msg)
+restart:
+	y1alpha := poly.GaussPolyAlpha(version, sampler)
+	y2alpha := poly.GaussPolyAlpha(version, sampler)
+	y1beta := poly.GaussPolyBeta(version, sampler)
+	y2beta := poly.GaussPolyBeta(version, sampler)
+	valpha, err := y1alpha.MultiplyNTT(key.a)
+	vbeta, err := y1beta.MultiplyNTT(key.a)
+	if err != nil {
+		return nil, err
+	}
+	valpha.ScalarMul(2)
+	vbeta.ScalarMul(2)
+	valpha.ScalarMul(int32(key.Param().OneQ2))
+	vbeta.ScalarMul(int32(key.Param().OneQ2))
+	valpha.Inc(y2alpha)
+	vbeta.Inc(y2beta)
+	v := valpha.Add(vbeta)
+	v = v.Mod2Q()
+	dv := v.DropBits().ModP()
+	indices := computeC(kappa, dv, hash[:])
+	v1, v2 := greedySc(indices, key.s1, key.s2)
+	normV := v1.Norm2() + v2.Norm2()
+	if M <= uint32(normV) {
+		return nil, fmt.Errorf("|v|^2 is larger than M")
+	}
+	if !sampler.SampleBerExp(M - uint32(normV)) {
+		goto restart
+	}
+	var z1, z2 *poly.PolyArray
+	b := entropy.Bit()
+	if b {
+		z1 = y1alpha.Sub(v1)
+		z2 = y2alpha.Sub(v2)
+		z1 = z1.Add(y1beta)
+		z2 = z2.Add(y2beta)
+	} else {
+		z1 = y1alpha.Add(v1)
+		z2 = y2alpha.Add(v2)
+		z1 = z1.Add(y1beta)
+		z2 = z2.Add(y2beta)
+	}
+	prodZV := z1.InnerProduct(v1) + z2.InnerProduct(v2)
+	if !sampler.SampleBerCosh(prodZV) {
+		goto restart
+	}
+	y1 := v.Sub(z2).Mod2Q().DropBits()
+	v = v.DropBits()
+	z2 = v.Sub(y1).BoundByP()
+	if z1.MaxNorm() > int32(Binf) {
+		goto restart
+	}
+	y2 := z2.Mul2d()
 	if y2.MaxNorm() > int32(Binf) {
 		goto restart
 	}

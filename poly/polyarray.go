@@ -111,3 +111,32 @@ func GaussPoly(version int, s *sampler.Sampler) *PolyArray {
 	p.SetData(v)
 	return p
 }
+
+// For splitted version
+func GaussPolyAlpha(version int, s *sampler.Sampler) *PolyArray {
+	p, err := New(version)
+	if err != nil {
+		return nil
+	}
+	n := p.param.N
+	v := make([]int32, n)
+	for i := 0; i < int(n); i++ {
+		v[i] = s.SampleGaussCtAlpha()
+	}
+	p.SetData(v)
+	return p
+}
+
+func GaussPolyBeta(version int, s *sampler.Sampler) *PolyArray {
+	p, err := New(version)
+	if err != nil {
+		return nil
+	}
+	n := p.param.N
+	v := make([]int32, n)
+	for i := 0; i < int(n); i++ {
+		v[i] = s.SampleGaussCtBeta()
+	}
+	p.SetData(v)
+	return p
+}
