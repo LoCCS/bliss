@@ -192,6 +192,9 @@ restart:
 	y1beta := poly.GaussPolyBeta(version, sampler)
 	y2beta := poly.GaussPolyBeta(version, sampler)
 	valpha, err := y1alpha.MultiplyNTT(key.a)
+	if err != nil {
+		return nil, err
+	}
 	vbeta, err := y1beta.MultiplyNTT(key.a)
 	if err != nil {
 		return nil, err

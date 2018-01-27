@@ -2,10 +2,10 @@ package bliss
 
 import (
 	"fmt"
+	"github.com/LoCCS/bliss/huffman"
 	"github.com/LoCCS/bliss/params"
 	"github.com/LoCCS/bliss/poly"
 	"github.com/LoCCS/bliss/sampler"
-	"github.com/LoCCS/bliss/huffman"
 )
 
 type PrivateKey struct {
@@ -68,6 +68,16 @@ func (privateKey *PrivateKey) PublicKey() *PublicKey {
 
 func (privateKey *PrivateKey) Param() *params.BlissBParam {
 	return privateKey.s1.Param()
+}
+
+func (privateKey *PrivateKey) Destroy() {
+	n := privateKey.Param().N
+	s1data := privateKey.s1.GetData()
+	s2data := privateKey.s2.GetData()
+	for i := 0; i < int(n); i++ {
+		s1data[i] = 0
+		s2data[i] = 0
+	}
 }
 
 func (publicKey *PublicKey) Param() *params.BlissBParam {

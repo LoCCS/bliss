@@ -37,6 +37,8 @@ func TestSignVerify(t *testing.T) {
 		if err != nil {
 			t.Errorf("Failed to verify signature for version %d: %s", i, err.Error())
 		}
+
+		key.Destroy()
 	}
 }
 
@@ -66,6 +68,8 @@ func TestSignVerifyAgainstChannel(t *testing.T) {
 		if err != nil {
 			t.Errorf("Failed to verify signature for version %d: %s", i, err.Error())
 		}
+
+		key.Destroy()
 	}
 }
 
@@ -99,6 +103,8 @@ func TestSignatureEncodeDecode(t *testing.T) {
 			t.Errorf("Different signature decoded for version %d!\nOriginal:\n%s\ngot:\n%s\n",
 				i, sig.String(), tmp.String())
 		}
+
+		key.Destroy()
 	}
 }
 
@@ -121,6 +127,8 @@ func benchSign(b *testing.B, version int) {
 	for i := 0; i < b.N; i++ {
 		key.Sign(msg, entropy)
 	}
+
+	key.Destroy()
 }
 
 func benchSignAgainstSideChannel(b *testing.B, version int) {
@@ -142,6 +150,7 @@ func benchSignAgainstSideChannel(b *testing.B, version int) {
 	for i := 0; i < b.N; i++ {
 		key.SignAgainstSideChannel(msg, entropy)
 	}
+	key.Destroy()
 }
 
 func BenchmarkSignBliss0(b *testing.B) {
@@ -205,6 +214,7 @@ func benchVerify(b *testing.B, version int) {
 	for i := 0; i < b.N; i++ {
 		pub.Verify(msg, sig)
 	}
+	key.Destroy()
 }
 
 func BenchmarkVerifyBliss0(b *testing.B) {
@@ -263,5 +273,6 @@ func TestSignatureSerializeDeserialize(t *testing.T) {
 			t.Errorf("Different signature decoded for version %d!\nOriginal:\n%s\ngot:\n%s\n",
 				i, sig.String(), tmp.String())
 		}
+		key.Destroy()
 	}
 }

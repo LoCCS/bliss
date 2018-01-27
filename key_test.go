@@ -65,6 +65,8 @@ func TestGeneratePrivateKey(t *testing.T) {
 				t.Errorf("Wrong a at %d: expect %d, got %d", j, tmp, s3[j])
 			}
 		}
+
+		key.Destroy()
 	}
 }
 
@@ -107,6 +109,8 @@ func TestKeyEncodeDecode(t *testing.T) {
 					i, key.String(), tmp.String())
 			}
 		}
+
+		key.Destroy()
 	}
 }
 
@@ -151,5 +155,7 @@ func TestKeySerialization(t *testing.T) {
 					i, key.String(), tmp.String())
 			}
 		}
+
+		key.Destroy()
 	}
 }
