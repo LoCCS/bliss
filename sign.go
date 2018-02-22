@@ -516,6 +516,38 @@ func DeserializeBlissSignature(data []byte) (*Signature, error) {
 	return &Signature{z1, z2, cdata[:]}, nil
 }
 
+func (key *PrivateKey) SerializedSign(msg []byte, entropy *sampler.Entropy) ([]byte, error) {
+	for i := 0; i < 16; i++ {
+		sig, err := key.SignAgainstSideChannel(msg, entropy)
+		if err != nil {
+			return []byte{}, err
+		}
+		if sig == nil {
+			return []byte{}, fmt.Errorf("Null signature.")
+		}
+		ret := sig.Serialize()
+		if len(ret) > int(key.Param().MaxSig) {
+			continue
+		}
+		return ret, nil
+	}
+	return []byte{}, fmt.Errorf("Failed to get signature of appropriate size")
+}
+
+func (key *PublicKey) SerializedVerify(msg []byte, sig []byte) (bool, error) {
+	if len(sig) > int(key.Param().MaxSig) {
+		return false, fmt.Errorf("Signature too large")
+	}
+	s, err := DeserializeBlissSignature(sig)
+	if err != nil {
+		return false, err
+	}
+	if s == nil {
+		return false, fmt.Errorf("Null signature.")
+	}
+	return key.Verify(msg, s)
+}
+
 func Abs(x int32) int32 {
 	if x < 0 {
 		return -x
