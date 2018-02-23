@@ -452,6 +452,9 @@ func (sig *Signature) Serialize() []byte {
 }
 
 func DeserializeBlissSignature(data []byte) (*Signature, error) {
+	if len(data) < 1 {
+		return nil, fmt.Errorf("The signature is too small!")
+	}
 	z1, err := poly.New(int(data[0]))
 	if err != nil {
 		return nil, fmt.Errorf("Error in generating new polyarray: %s", err.Error())
@@ -474,6 +477,9 @@ func DeserializeBlissSignature(data []byte) (*Signature, error) {
 
 	csize := (nbit*kappa + 7) / 8
 	lowsize := 9 * n / 8
+	if len(data) < int(1+lowsize+csize) {
+		return nil, fmt.Errorf("The signature is too small!")
+	}
 	lowsrc := data[1 : 1+lowsize]
 	csrc := data[1+lowsize : 1+lowsize+csize]
 	z1z2 := data[1+lowsize+csize:]
