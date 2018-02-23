@@ -535,6 +535,9 @@ func (key *PrivateKey) SerializedSign(msg []byte, entropy *sampler.Entropy) ([]b
 		if len(ret) > int(key.Param().MaxSig) {
 			continue
 		}
+		if len(ret) < int(key.Param().MinSig) {
+			continue
+		}
 		return ret, nil
 	}
 	return []byte{}, fmt.Errorf("Failed to get signature of appropriate size")
@@ -543,6 +546,9 @@ func (key *PrivateKey) SerializedSign(msg []byte, entropy *sampler.Entropy) ([]b
 func (key *PublicKey) SerializedVerify(msg []byte, sig []byte) (bool, error) {
 	if len(sig) > int(key.Param().MaxSig) {
 		return false, fmt.Errorf("Signature too large")
+	}
+	if len(sig) < int(key.Param().MinSig) {
+		return false, fmt.Errorf("Signature too small")
 	}
 	s, err := DeserializeBlissSignature(sig)
 	if err != nil {

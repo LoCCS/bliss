@@ -38,6 +38,7 @@ type BlissBParam struct {
 	Pbits   uint32  /* bits to store an unsigned integer within [0,p) */
 	Nbits   uint32  /* bits to store an unsigned integer within [0,n) */
 	MaxSig  uint32  /* upper bound on the size of encoded signature */
+	MinSig  uint32  /* lower bound on the size of encoded signature */
 	Code    *huffman.HuffmanCode
 	Nbz1    uint8
 	Nbz2    uint8
@@ -1294,6 +1295,7 @@ func GetParam(version int) *BlissBParam {
 			9,             /* P bits */
 			8,             /* N bits */
 			432,           /* max sig size (bytes) */
+			397,           /* min sig size (bytes) */
 			huffman0,      /* Huffman Code */
 			3,             /* nz1 */
 			17,            /* nz2 */
@@ -1326,6 +1328,7 @@ func GetParam(version int) *BlissBParam {
 			5,              /* P bits */
 			9,              /* N bits */
 			732,            /* max sig size (bytes) */
+			667,            /* min sig size (bytes) */
 			huffman1,       /* Huffman Code */
 			9,              /* nz1 */
 			3,              /* nz2 */
@@ -1359,6 +1362,7 @@ func GetParam(version int) *BlissBParam {
 			5,              /* P bits */
 			9,              /* N bits */
 			700,            /* max sig size (bytes) */
+			667,            /* min sig size (bytes) */
 			huffman2,       /* Huffman Code */
 			7,              /* nz1 */
 			2,              /* nz2 */
@@ -1392,6 +1396,7 @@ func GetParam(version int) *BlissBParam {
 			6,              /* P bits */
 			9,              /* N bits */
 			780,            /* max sig size (bytes) */
+			675,            /* min sig size (bytes) */
 			huffman3,       /* Huffman Code */
 			7,              /* nz1 */
 			4,              /* nz2 */
@@ -1425,6 +1430,7 @@ func GetParam(version int) *BlissBParam {
 			7,              /* P bits */
 			9,              /* N bits */
 			860,            /* max sig size (bytes) */
+			749,            /* min sig size (bytes) */
 			huffman4,       /* Huffman Code */
 			7,              /* nz1 */
 			7,              /* nz2 */
